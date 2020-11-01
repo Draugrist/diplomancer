@@ -1,0 +1,11 @@
+{
+  "name": "diplomancer",
+  "version": "1.0.0",
+  "description": "Discord bot for communicating as Diplomacy nations",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.4.1",
+    "eslint": "^7.12.1"
+  }
+}
