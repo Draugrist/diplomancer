@@ -5,10 +5,21 @@ const { token } = require('./config.json');
 const client = new Discord.Client();
 
 const nationNames = ['england', 'germany', 'russia', 'france', 'italy', 'austria', 'turkey'];
+const flags = {
+  'england': 'flag_gb',
+  'germany': 'flag_de',
+  'russia': 'flag_ru',
+  'france': 'flag_fr',
+  'italy': 'flag_it',
+  'austria': 'flag_at',
+  'turkey': 'flag_tr',
+  'global': 'flag_eu',
+};
+
 const nationFile = 'nations.json';
 const userFile = 'users.json';
 
-const readFile = function(name) {
+const readFile = function (name) {
   if (fs.existsSync(name)) {
     console.log(`Reading file ${name}`);
     return JSON.parse(fs.readFileSync(name));
@@ -20,12 +31,12 @@ const readFile = function(name) {
 const nationToUser = readFile(nationFile);
 const userToNation = readFile(userFile);
 
-const writeFile = function(name, content) {
+const writeFile = function (name, content) {
   console.log(`Writing file ${name}`);
   fs.writeFileSync(name, JSON.stringify(content));
 };
 
-const addNation = function(nation, user) {
+const addNation = function (nation, user) {
   if (!nationNames.includes(nation)) {
     user.send(`Unknown nation ${nation}`);
     return;
@@ -44,13 +55,14 @@ const addNation = function(nation, user) {
   user.send(`Registered as ${nation}!`);
 };
 
-const sendMessage = function(toNation, fromUser, message) {
+const sendMessage = function (toNation, fromUser, message) {
   const userId = nationToUser[toNation];
   const fromNation = userToNation[fromUser.id];
   if (userId && fromNation) {
     client.users.fetch(userId).then(user => {
       if (user) {
-        user.send(`[${fromNation.toUpperCase()}] ${message}`);
+        const flagCode = flags[fromNation.toLowerCase()];
+        user.send(`[${fromNation.toUpperCase()}] :${flagCode}: ${message}`);
       }
     });
   } else if (userId) {
@@ -60,7 +72,7 @@ const sendMessage = function(toNation, fromUser, message) {
   }
 };
 
-const sendMessageToAll = function(fromUser, message) {
+const sendMessageToAll = function (fromUser, message) {
   const fromNation = userToNation[fromUser.id];
   nationNames.forEach(nation => {
     if (fromNation !== nation) {
@@ -69,7 +81,7 @@ const sendMessageToAll = function(fromUser, message) {
   });
 };
 
-const parseCommandName = function(command) {
+const parseCommandName = function (command) {
   let parsedCommand = command;
   if (command.length === 1) {
     if (command === 'g') {
