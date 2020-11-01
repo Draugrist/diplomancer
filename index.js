@@ -44,18 +44,19 @@ const addNation = function(nation, user) {
   user.send(`Registered as ${nation}!`);
 };
 
-const sendMessage = function(toNation, fromUser, message) {
+const sendMessage = function(toNation, fromUser, message, global = false) {
   const userId = nationToUser[toNation];
   const fromNation = userToNation[fromUser.id];
   if (userId && fromNation) {
     client.users.fetch(userId).then(user => {
       if (user) {
-        user.send(`[${fromNation.toUpperCase()}] ${message}`);
+        const prefix = global ? 'GLOBAL/' : '';
+        user.send(`[${prefix + fromNation.toUpperCase()}] ${message}`);
       }
     });
   } else if (userId) {
     fromUser.send('You have not registered as a nation!');
-  } else {
+  } else if (!global) {
     fromUser.send(`No one has registered as ${toNation}`);
   }
 };
@@ -64,7 +65,7 @@ const sendMessageToAll = function(fromUser, message) {
   const fromNation = userToNation[fromUser.id];
   nationNames.forEach(nation => {
     if (fromNation !== nation) {
-      sendMessage(nation, fromUser, message);
+      sendMessage(nation, fromUser, message, true);
     }
   });
 };
