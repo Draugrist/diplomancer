@@ -1,35 +1,56 @@
 const Discord = require('discord.js');
+const fs = require('fs');
 const { token } = require('./config.json');
 
 const client = new Discord.Client();
 
 const nationNames = ['england', 'germany', 'russia', 'france', 'italy', 'austria', 'turkey'];
-const nationToUser = new Map();
-const userToNation = new Map();
+const nationFile = 'nations.json';
+const userFile = 'users.json';
+
+const readFile = function(name) {
+  if (fs.existsSync(name)) {
+    console.log(`Reading file ${name}`);
+    return JSON.parse(fs.readFileSync(name));
+  } else {
+    return {};
+  }
+};
+
+const nationToUser = readFile(nationFile);
+const userToNation = readFile(userFile);
+
+const writeFile = function(name, content) {
+  console.log(`Writing file ${name}`);
+  fs.writeFileSync(name, JSON.stringify(content));
+};
 
 const addNation = function(nation, user) {
   if (!nationNames.includes(nation)) {
     user.send(`Unknown nation ${nation}`);
     return;
-  } else if (nationToUser.has(nation)) {
+  } else if (nation in nationToUser) {
     user.send(`Someone has already registered as ${nation}`);
     return;
-  } else if (userToNation.has(user)) {
-    user.send(`You are already registered as ${userToNation.get(user)}`);
+  } else if (user.id in userToNation) {
+    user.send(`You are already registered as ${userToNation.get(user.id)}`);
     return;
   }
 
-  nationToUser.set(nation, user);
-  userToNation.set(user, nation);
+  nationToUser[nation] = user.id;
+  userToNation[user.id] = nation;
+  writeFile(nationFile, nationToUser);
+  writeFile(userFile, userToNation);
   user.send(`Registered as ${nation}!`);
 };
 
 const sendMessage = function(toNation, fromUser, message) {
-  const toUser = nationToUser.get(toNation);
-  const fromNation = userToNation.get(fromUser);
-  if (toUser && fromNation) {
-    toUser.send(`[${fromNation.toUpperCase()}] ${message}`);
-  } else if (toUser) {
+  const userId = nationToUser[toNation];
+  const fromNation = userToNation[fromUser.id];
+  const user = client.users.cache.get(userId);
+  if (user && fromNation) {
+    user.send(`[${fromNation.toUpperCase()}] ${message}`);
+  } else if (userId) {
     fromUser.send('You have not registered as a nation!');
   } else {
     fromUser.send(`No one has registered as ${toNation}`);
