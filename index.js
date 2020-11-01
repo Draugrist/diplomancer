@@ -113,6 +113,9 @@ client.on('message', message => {
     message.author.send(`The nations are ${nationNames}`);
     return;
   }
+  if (message.channel.type !== 'dm') {
+    return;
+  }
 
   const content = message.content.trim();
   const index = content.indexOf(' ');
