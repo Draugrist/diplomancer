@@ -120,7 +120,7 @@ client.on('message', message => {
   const args = content.substring(index + 1);
 
   if (command === 'register') {
-    addNation(args, message.author);
+    addNation(args.toLowerCase(), message.author);
   } else if (command === 'global') {
     sendMessageToAll(message.author, args);
   } else if (nationNames.includes(command)) {
