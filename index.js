@@ -47,14 +47,42 @@ const addNation = function(nation, user) {
 const sendMessage = function(toNation, fromUser, message) {
   const userId = nationToUser[toNation];
   const fromNation = userToNation[fromUser.id];
-  const user = client.users.cache.get(userId);
-  if (user && fromNation) {
-    user.send(`[${fromNation.toUpperCase()}] ${message}`);
+  if (userId && fromNation) {
+    client.users.fetch(userId).then(user => {
+      if (user) {
+        user.send(`[${fromNation.toUpperCase()}] ${message}`);
+      }
+    });
   } else if (userId) {
     fromUser.send('You have not registered as a nation!');
   } else {
     fromUser.send(`No one has registered as ${toNation}`);
   }
+};
+
+const sendMessageToAll = function(fromUser, message) {
+  const fromNation = userToNation[fromUser.id];
+  nationNames.forEach(nation => {
+    if (fromNation !== nation) {
+      sendMessage(nation, fromUser, message);
+    }
+  });
+};
+
+const parseCommandName = function(command) {
+  let parsedCommand = command;
+  if (command.length === 1) {
+    if (command === 'g') {
+      parsedCommand = 'global';
+    } else {
+      nationNames.forEach(nation => {
+        if (nation.startsWith(command)) {
+          parsedCommand = nation;
+        }
+      });
+    }
+  }
+  return parsedCommand;
 };
 
 client.once('ready', () => {
@@ -75,11 +103,13 @@ client.on('message', message => {
 
   const content = message.content.trim();
   const index = content.indexOf(' ');
-  const command = content.substring(0, index);
+  const command = parseCommandName(content.substring(0, index).toLowerCase());
   const args = content.substring(index + 1);
 
   if (command === 'register') {
     addNation(args, message.author);
+  } else if (command === 'global') {
+    sendMessageToAll(message.author, args);
   } else if (nationNames.includes(command)) {
     sendMessage(command, message.author, args);
   }
