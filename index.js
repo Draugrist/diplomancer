@@ -73,7 +73,7 @@ const sendMessage = function(toNation, fromUser, message, global = false) {
   }
 };
 
-const sendMessageToAll = function (fromUser, message) {
+const sendMessageToAll = function(fromUser, message) {
   const fromNation = userToNation[fromUser.id];
   nationNames.forEach(nation => {
     if (fromNation !== nation) {
@@ -82,15 +82,14 @@ const sendMessageToAll = function (fromUser, message) {
   });
 };
 
-const parseCommandName = function (command) {
+const parseCommandName = function(command) {
   let parsedCommand = command;
   if (command.length === 1) {
-      nationNames.forEach(nation => {
-        if (nation.startsWith(command)) {
-          parsedCommand = nation;
-        }
-      });
-    }
+    nationNames.forEach(nation => {
+      if (nation.startsWith(command)) {
+        parsedCommand = nation;
+      }
+    });
   }
   return parsedCommand;
 };
