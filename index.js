@@ -85,9 +85,6 @@ const sendMessageToAll = function (fromUser, message) {
 const parseCommandName = function (command) {
   let parsedCommand = command;
   if (command.length === 1) {
-    if (command === 'g') {
-      parsedCommand = 'global';
-    } else {
       nationNames.forEach(nation => {
         if (nation.startsWith(command)) {
           parsedCommand = nation;
